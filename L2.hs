@@ -5,6 +5,9 @@ module L2(tv,
           expr,
           typeCheck) where
 
+import Data.List as L
+import Data.Map as M
+
 data Type
      = Var String
      | Arrow Type Type
@@ -27,6 +30,25 @@ data Term
 var = Variable
 lam = TermAbstraction
 
+data Context = Con (Map String Type)
+
+emptyContext = Con M.empty
+
+addVar :: String -> Type -> Context -> Context
+addVar name tp (Con m) = Con $ M.insert name tp m
+
+typeInContext :: String -> Context -> Maybe Type
+typeInContext name (Con m) = M.lookup name m
+
 typeCheck :: Expr -> Bool
-typeCheck (Expr (Variable _) _) = False
-typeCheck (Expr (TermAbstraction _ _ _) _) = True
+typeCheck e = typeCheckWithContext emptyContext e
+
+typeCheckWithContext :: Context -> Expr -> Bool
+typeCheckWithContext c (Expr (Variable name) tp) = case typeInContext name c of
+  Just t -> t == tp
+  Nothing -> False
+typeCheckWithContext c (Expr (TermAbstraction varName varType term) (Arrow l r)) =
+  case l == r of
+    True -> typeCheckWithContext (addVar varName varType c) (expr term r)
+    False -> False
+typeCheckWithContext _ _ = False
