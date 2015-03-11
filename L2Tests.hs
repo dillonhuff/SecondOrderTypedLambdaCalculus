@@ -17,4 +17,8 @@ typeCheckingCases =
    (expr (lam "y" (tv "a") (var "y")) (tv "a"),
     False),
    (expr (lam "y" (ar (tv "a") (tv "b")) (var "y")) (ar (tv "c") (tv "b")),
-    False)]
+    False),
+   (expr
+    (lam "x" (tv "a") (ap (lam "y" (tv "a") (var "y")) (var "x") (tv "a"))) (ar (tv "a") (tv "a")), True),
+   (expr
+    (lam "x" (tv "a") (ap (lam "y" (tv "b") (var "y")) (var "x") (tv "a"))) (ar (tv "a") (tv "a")), False)]
